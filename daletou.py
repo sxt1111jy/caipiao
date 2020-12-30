@@ -52,8 +52,9 @@ class daletou():
         :param start_period: 开始获取数据的期次,从03年开始出售第一期双色球,默认从第一期开始爬取数据
         :return: 提取到的彩票数据
         '''
-        url = 'http://datachart.500.com/ssq/history/newinc/history.php?start=%s&end=%s&sort=1' \
+        url = 'http://datachart.500.com/dlt/history/newinc/history.php?start=%s&end=%s&sort=1' \
               % ( start_period, self.current_issue)  # 可以提取到期号、中奖号码、奖金、开奖日期等信息
+        print(url)
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:76.0) Gecko/20100101 Firefox/76.0'
         }
@@ -72,7 +73,7 @@ class daletou():
         :return: 提取到的彩票数据
         '''
         html = bs4.BeautifulSoup(response_text, 'lxml')
-        cai_piao_info = html.find_all('tr', class_='t_tr1')
+        cai_piao_info = html.find_all('tbody', id='tdata')[0].find_all('tr', class_='t_tr1')
         current_row_index = 0
         all_cai_piao_detailed_data = OrderedDict()
         all_cai_piao_ball_list = []
