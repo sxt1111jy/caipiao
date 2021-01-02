@@ -29,7 +29,7 @@ class shuangseqiu():
         self.start_period = "03001" if not start_period else start_period
         self.file_save_name = "双色球数据" if not file_save_name else file_save_name  #保存数据的文件名
         self.all_cai_piao_detailed_data = OrderedDict() #爬取到的所有彩票数据，包括期数、中奖号码、奖金、开奖时间等详细信息
-        self.all_cai_piao_ball_list = [] #爬取到的所有彩票开奖号码数据
+        self.all_cai_piao_ball_list = [] #爬取到的所有彩票开奖号码数据,第一个数据是彩票期次
         self.current_issue = self.getCurrentPeriod() if not current_issue else current_issue
         # 创建data子目录，用于保存数据
         if not os.path.exists(os.path.join(os.getcwd(), "data")):
@@ -88,7 +88,7 @@ class shuangseqiu():
         for index_cai_piao, one_cai_piao in enumerate(cai_piao_info):
             one_cai_piao = one_cai_piao.find_all('td')
             one_cai_piao = [i.text for index, i in enumerate(one_cai_piao) if index != 8]
-            all_cai_piao_ball_list.append([int(i) for i in one_cai_piao[1:8]])
+            all_cai_piao_ball_list.append([int(i) for i in one_cai_piao[0:8]])#将期次转换成整数数据后需要注意，比如"03001" -> 3001 ，使用数据时需要注意
             all_cai_piao_detailed_data[index_cai_piao] = one_cai_piao
             current_row_index += 1
         print("一共爬取到%d期彩票数据" % (current_row_index))
@@ -203,7 +203,7 @@ class shuangseqiu():
 
 if __name__ == "__main__":
     shuangseqiu = shuangseqiu()
-    #shuangseqiu.getAllData()
-    #shuangseqiu.getAllDataFromExcelFile()
+    shuangseqiu.getAllData()
+    shuangseqiu.getAllDataFromExcelFile()
     print(shuangseqiu.getLatestExpertKillNumberData())
     print(shuangseqiu.getMediaForecastsData())
