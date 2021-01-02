@@ -135,7 +135,7 @@ class daletou():
                     with open(cai_piao_ball_list_json_file_path, "r") as f:
                         self.all_cai_piao_detailed_data = json.load(f)
                 else:#npy或者json数据不存在，需要重新读取excel文件获取信息并存储为npy文件
-                    self.all_cai_piao_ball_list, self.all_cai_piao_detailed_data = self.getAllDataFromExcelFile()
+                    self.getAllDataFromExcelFile()
                     # 保存数据成npy
                     np.save(cai_piao_ball_list_npy_file_path, self.all_cai_piao_ball_list)
                     # 保存数据成json格式
@@ -145,7 +145,7 @@ class daletou():
                 start_period_tmp = eval(last_row_data[0]) + 1
                 cai_piao_ball_list, cai_piao_detailed_data = self.crawlingData(start_period_tmp)
 
-                self.all_cai_piao_ball_list, self.all_cai_piao_detailed_data = self.getAllDataFromExcelFile()
+                self.getAllDataFromExcelFile()
                 for k, v in cai_piao_detailed_data.items():
                     self.all_cai_piao_detailed_data[k] = v
                 for ball_list in cai_piao_ball_list:
@@ -175,7 +175,7 @@ class daletou():
             all_cai_piao_detailed_data[one_row_data[0]] = one_row_data
             all_cai_piao_ball_list.append([int(i) for i in one_row_data[1:8]])
         print("从excel文件中读取到{}条数据".format(len(all_cai_piao_ball_list)))
-        return all_cai_piao_ball_list, all_cai_piao_detailed_data
+        self.all_cai_piao_ball_list, self.all_cai_piao_detailed_data = all_cai_piao_ball_list, all_cai_piao_detailed_data
 
     # 获取专家杀号数据，来源：https://zx.500.com/dlt/zhuanjiashahao.php
     def getLatestExpertKillNumberData(self):
@@ -191,17 +191,16 @@ class daletou():
     #获取每年的彩票数据
     def getDataByYear(self):
         if len(self.all_cai_piao_ball_list) == 0:#彩票数据列表为空，首先需要获取数据
-            self.all_cai_piao_ball_list, self.all_cai_piao_detailed_data = self.crawlingData()
-            self.saveData(self.all_cai_piao_ball_list, self.all_cai_piao_detailed_data)
-        self.cai_piao_data_dict_by_year = {}
+            self.getAllDataFromExcelFile()
+        self.cai_piao_data_dict_by_year = OrderedDict()
         for one_cai_piao_data in self.all_cai_piao_ball_list:
-            current_year = 2000 + one_cai_piao_data[0]//1000
+            current_year = 2000 + one_cai_piao_data[0] // 1000
             if not self.cai_piao_data_dict_by_year.get(current_year, None):
                 self.cai_piao_data_dict_by_year[current_year] = []
             self.cai_piao_data_dict_by_year[current_year].append(one_cai_piao_data[1:])
 
 if __name__ == "__main__":
     daletou = daletou()
-    #daletou.getAllData()
+    daletou.getAllData()
     #daletou.getAllDataFromExcelFile()
     print(daletou.getLatestExpertKillNumberData())
