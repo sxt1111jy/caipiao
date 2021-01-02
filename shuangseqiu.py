@@ -174,7 +174,7 @@ class shuangseqiu():
         for i in range(1, sheet.nrows):
             one_row_data = sheet.row_values(i)
             all_cai_piao_detailed_data[one_row_data[0]] = one_row_data
-            all_cai_piao_ball_list.append([int(i) for i in one_row_data[1:8]])
+            all_cai_piao_ball_list.append([int(i) for i in one_row_data[0:8]])#将期次转换成整数数据后需要注意，比如"03001" -> 3001 ，使用数据时需要注意
         print("从excel文件中读取到{}条数据".format(len(all_cai_piao_ball_list)))
         self.all_cai_piao_ball_list, self.all_cai_piao_detailed_data =  all_cai_piao_ball_list, all_cai_piao_detailed_data
 
@@ -213,7 +213,6 @@ class shuangseqiu():
             if not self.cai_piao_data_dict_by_year.get(current_year, None):
                 self.cai_piao_data_dict_by_year[current_year] = []
             self.cai_piao_data_dict_by_year[current_year].append(one_cai_piao_data[1:])
-
 
 if __name__ == "__main__":
     shuangseqiu = shuangseqiu()
