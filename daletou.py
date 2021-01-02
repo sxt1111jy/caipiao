@@ -12,6 +12,7 @@ import xlrd
 import xlwt
 import json
 import numpy as np
+import datetime
 from collections import OrderedDict
 
 class daletou():
@@ -30,10 +31,16 @@ class daletou():
         self.all_cai_piao_detailed_data = OrderedDict() #爬取到的所有彩票数据，包括期数、中奖号码、奖金、开奖时间等详细信息
         self.all_cai_piao_ball_list = [] #爬取到的所有彩票开奖号码数据
         self.current_issue = self.getCurrentPeriod() if not current_issue else current_issue
-        self.cai_piao_detailed_file_path = os.path.join(os.getcwd(), "data", self.file_save_name + ".xls")
         # 创建data子目录，用于保存数据
         if not os.path.exists(os.path.join(os.getcwd(), "data")):
             os.mkdir(os.path.join(os.getcwd(), "data"))
+        # 获取当前日期
+        now_time = datetime.datetime.now().strftime('%Y-%m-%d')
+        self.file_save_dir = os.path.join(os.getcwd(), "data", now_time)
+        if not os.path.exists(self.file_save_dir):
+            os.mkdir(self.file_save_dir)
+            print("创建{}目录，数据将保存在该目录下".format(self.file_save_dir))
+        self.cai_piao_detailed_file_path = os.path.join(self.file_save_dir, self.file_save_name + ".xls")
 
     def getCurrentPeriod(self):
         '''
@@ -105,9 +112,9 @@ class daletou():
         # 保存
         workbook.save(self.cai_piao_detailed_file_path)
         #保存数据成npy
-        np.save("./data/%s" % self.file_save_name, cai_piao_ball_list)
+        np.save(os.path.join(self.file_save_dir, self.file_save_name), cai_piao_ball_list)
         #保存数据成json格式
-        with open("./data/{}.json".format(self.file_save_name), "w+") as f:
+        with open(os.path.join(self.file_save_dir, self.file_save_name + ".json"), "w+") as f:
             json.dump(cai_piao_detailed_data, f)
 
     def getAllData(self, start_period = None):
@@ -118,19 +125,19 @@ class daletou():
             nrows = sheet.nrows  # 获取行总数
             last_row_data = sheet.row_values(nrows - 1)
             if last_row_data[0] == self.current_issue:#最后一行数据等于当前最新期数，不需要重新爬取
-                cai_piao_ball_list_npy_file_path = os.path.join(os.getcwd(), "data", self.file_save_name + ".npy")
-                cai_piao_ball_list_json_file_path = os.path.join(os.getcwd(), "data", self.file_save_name + ".json")
+                cai_piao_ball_list_npy_file_path = os.path.join(self.file_save_dir, self.file_save_name + ".npy")
+                cai_piao_ball_list_json_file_path = os.path.join(self.file_save_dir, self.file_save_name + ".json")
                 if os.path.exists(cai_piao_ball_list_npy_file_path) and os.path.exists(cai_piao_ball_list_json_file_path):#文件存在，直接加载数据
                     self.all_cai_piao_ball_list = np.load(cai_piao_ball_list_npy_file_path)
                     print("从.npy文件中获取到{}条数据".format(len(self.all_cai_piao_ball_list)))
-                    with open("./data/{}.json".format(self.file_save_name), "r") as f:
+                    with open(cai_piao_ball_list_json_file_path, "r") as f:
                         self.all_cai_piao_detailed_data = json.load(f)
                 else:#npy或者json数据不存在，需要重新读取excel文件获取信息并存储为npy文件
                     self.all_cai_piao_ball_list, self.all_cai_piao_detailed_data = self.getAllDataFromExcelFile()
                     # 保存数据成npy
-                    np.save("./data/%s" % self.file_save_name, self.all_cai_piao_ball_list)
+                    np.save(cai_piao_ball_list_npy_file_path, self.all_cai_piao_ball_list)
                     # 保存数据成json格式
-                    with open("./data/{}.json".format(self.file_save_name), "w+") as f:
+                    with open(cai_piao_ball_list_json_file_path, "w+") as f:
                         json.dump(self.all_cai_piao_detailed_data, f)
             else:#当前保存的数据不是最新的，需要更新
                 start_period_tmp = eval(last_row_data[0]) + 1
