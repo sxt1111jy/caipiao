@@ -60,6 +60,7 @@ class shuangseqiu():
         :param start_period: 开始获取数据的期次,从03年开始出售第一期双色球,默认从第一期开始爬取数据
         :return: 提取到的彩票数据
         '''
+        start_period = start_period if start_period else self.start_period  # 如果没有给起始期次，则使用默认期次
         url = 'http://datachart.500.com/ssq/history/newinc/history.php?start=%s&end=%s&sort=1' \
               % ( start_period, self.current_issue)  # 可以提取到期号、中奖号码、奖金、开奖日期等信息
         print(url)
@@ -200,6 +201,7 @@ class shuangseqiu():
             redBallForecastsData.append(result[0].get_text())
             blueBallForecastsData.append(result[1].get_text())
         return redBallForecastsData, blueBallForecastsData
+
 
 if __name__ == "__main__":
     shuangseqiu = shuangseqiu()
