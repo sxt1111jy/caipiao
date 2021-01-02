@@ -188,6 +188,18 @@ class daletou():
         blue_killed = [blue.get_text() for blue in blue_killed]
         return set(red_killed), set(blue_killed)
 
+    #获取每年的彩票数据
+    def getDataByYear(self):
+        if len(self.all_cai_piao_ball_list) == 0:#彩票数据列表为空，首先需要获取数据
+            self.all_cai_piao_ball_list, self.all_cai_piao_detailed_data = self.crawlingData()
+            self.saveData(self.all_cai_piao_ball_list, self.all_cai_piao_detailed_data)
+        self.cai_piao_data_dict_by_year = {}
+        for one_cai_piao_data in self.all_cai_piao_ball_list:
+            current_year = 2000 + one_cai_piao_data[0]//1000
+            if not self.cai_piao_data_dict_by_year.get(current_year, None):
+                self.cai_piao_data_dict_by_year[current_year] = []
+            self.cai_piao_data_dict_by_year[current_year].append(one_cai_piao_data[1:])
+
 if __name__ == "__main__":
     daletou = daletou()
     #daletou.getAllData()
