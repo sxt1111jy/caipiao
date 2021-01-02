@@ -176,7 +176,19 @@ class shuangseqiu():
         print("从excel文件中读取到{}条数据".format(len(all_cai_piao_ball_list)))
         return all_cai_piao_ball_list, all_cai_piao_detailed_data
 
+    #获取专家杀号数据，来源：https://zx.500.com/ssq/zhuanjiashahao.php
+    def getLatestExpertKillNumberData(self):
+        url = "https://zx.500.com/ssq/zhuanjiashahao.php"
+        html = requests.get(url)
+        html = bs4.BeautifulSoup(html.text, 'lxml')
+        red_killed = html.find('tr', class_="nub-header2 nub-line nub-bg").find_all("span", class_ = "nub-ball nb1")
+        red_killed = [red.get_text() for red in red_killed]
+        blue_killed = html.find('tr', class_="nub-header2 nub-line nub-bg").find_all("span", class_="nub-ball nb2")
+        blue_killed = [blue.get_text() for blue in blue_killed]
+        return set(red_killed), set(blue_killed)
+
 if __name__ == "__main__":
     shuangseqiu = shuangseqiu()
-    shuangseqiu.getAllData()
-    shuangseqiu.getAllDataFromExcelFile()
+    #shuangseqiu.getAllData()
+    #shuangseqiu.getAllDataFromExcelFile()
+    print(shuangseqiu.getLatestExpertKillNumberData())

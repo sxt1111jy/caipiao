@@ -13,6 +13,7 @@ import xlwt
 import json
 import numpy as np
 import datetime
+import lxml
 from collections import OrderedDict
 
 class daletou():
@@ -175,7 +176,19 @@ class daletou():
         print("从excel文件中读取到{}条数据".format(len(all_cai_piao_ball_list)))
         return all_cai_piao_ball_list, all_cai_piao_detailed_data
 
+    # 获取专家杀号数据，来源：https://zx.500.com/dlt/zhuanjiashahao.php
+    def getLatestExpertKillNumberData(self):
+        url = "https://zx.500.com/dlt/zhuanjiashahao.php"
+        html = requests.get(url)
+        html = bs4.BeautifulSoup(html.text, 'lxml')
+        red_killed = html.find('tr', class_="nub-header2 nub-line nub-bg").find_all("span", class_ = "nub-ball nb3")
+        red_killed = [red.get_text() for red in red_killed]
+        blue_killed = html.find('tr', class_="nub-header2 nub-line nub-bg").find_all("span", class_="nub-ball nb4")
+        blue_killed = [blue.get_text() for blue in blue_killed]
+        return set(red_killed), set(blue_killed)
+
 if __name__ == "__main__":
     daletou = daletou()
-    daletou.getAllData()
-    daletou.getAllDataFromExcelFile()
+    #daletou.getAllData()
+    #daletou.getAllDataFromExcelFile()
+    print(daletou.getLatestExpertKillNumberData())
