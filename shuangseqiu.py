@@ -187,8 +187,23 @@ class shuangseqiu():
         blue_killed = [blue.get_text() for blue in blue_killed]
         return set(red_killed), set(blue_killed)
 
+    #获取媒体预测数据，来源https://zx.500.com/ssq/mediayc.php
+    def getMediaForecastsData(self):
+        redBallForecastsData = [] #记录媒体预测中给出的红球预测数据列表
+        blueBallForecastsData = []#记录媒体预测中给出的篮球预测数据列表
+        url = "https://zx.500.com/ssq/mediayc.php"
+        html = requests.get(url)
+        html = bs4.BeautifulSoup(html.text, 'lxml')
+        nums = html.findAll('tbody', id="n1_tbody")[0].findAll('tr', class_ = "")
+        for i in nums:
+            result = i.findAll("td", class_ = "num")
+            redBallForecastsData.append(result[0].get_text())
+            blueBallForecastsData.append(result[1].get_text())
+        return redBallForecastsData, blueBallForecastsData
+
 if __name__ == "__main__":
     shuangseqiu = shuangseqiu()
     #shuangseqiu.getAllData()
     #shuangseqiu.getAllDataFromExcelFile()
     print(shuangseqiu.getLatestExpertKillNumberData())
+    print(shuangseqiu.getMediaForecastsData())
