@@ -192,15 +192,26 @@ class daletou():
     def getDataByYear(self):
         if len(self.all_cai_piao_ball_list) == 0:#彩票数据列表为空，首先需要获取数据
             self.getAllDataFromExcelFile()
-        self.cai_piao_data_dict_by_year = OrderedDict()
+        self.all_cai_piao_data_dict_by_year = OrderedDict()#记录每一年所有的彩票数据
+        self.one_year_data_for_given_ball = OrderedDict()#记录每个球每一年的数据，一年的数据为1个list
+        self.all_years_data_for_given_ball = OrderedDict()#记录每个球所有历史数据，一个球的所有数据为一个list
+        for i in range(7):
+            self.one_year_data_for_given_ball[i] = OrderedDict()
+            self.all_years_data_for_given_ball[i] = []
         for one_cai_piao_data in self.all_cai_piao_ball_list:
             current_year = 2000 + one_cai_piao_data[0] // 1000
-            if not self.cai_piao_data_dict_by_year.get(current_year, None):
-                self.cai_piao_data_dict_by_year[current_year] = []
-            self.cai_piao_data_dict_by_year[current_year].append(one_cai_piao_data[1:])
+            if not self.all_cai_piao_data_dict_by_year.get(current_year, None):
+                self.all_cai_piao_data_dict_by_year[current_year] = []
+            self.all_cai_piao_data_dict_by_year[current_year].append(one_cai_piao_data[1:])
+            for index, ball in enumerate(one_cai_piao_data[1:]):
+                if not self.one_year_data_for_given_ball[index].get(current_year, None):
+                    self.one_year_data_for_given_ball[index][current_year] = []
+                self.one_year_data_for_given_ball[index][current_year].append(ball)
+                self.all_years_data_for_given_ball[index].append(ball)
 
 if __name__ == "__main__":
     daletou = daletou()
     daletou.getAllData()
     #daletou.getAllDataFromExcelFile()
-    print(daletou.getLatestExpertKillNumberData())
+    #print(daletou.getLatestExpertKillNumberData())
+    daletou.getDataByYear()
