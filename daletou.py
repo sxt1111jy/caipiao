@@ -238,14 +238,21 @@ class daletou():
                 plt.savefig(os.path.join(history_data_save_path_list[ball], "球{}-在{}年的数据图".format(ball,  year)))
                 plt.clf()
 
-    def getBallDataByRandom(self, group_num):
+    def getBallDataByRandom(self, group_num, kill_red_ball_list = [], kill_blue_ball_list = []):
         '''
         根据random.randint函数产生随机数据
         :param group_num: 组数（注数），要获取多少注给定颜色的小球数据
         :return: 一定注数的小球数据
         '''
-        red_ball_data = range(1, 36, 1) #大乐透红球取值[1,35]
-        blue_ball_data = range(1, 13, 1) #大乐透篮球取值[1,12]
+        red_ball_data = list(range(1, 36, 1)) #大乐透红球取值[1,35]
+        blue_ball_data = list(range(1, 13, 1)) #大乐透篮球取值[1,12]
+        if len(kill_red_ball_list) > 0:
+            for ball_i in kill_red_ball_list:
+            for ball_i in kill_red_ball_list:
+                red_ball_data.remove(ball_i)
+        if len(kill_blue_ball_list) > 0:
+            for ball_i in kill_blue_ball_list:
+                blue_ball_data.remove(ball_i)
         ball_data_list = []
         for i in range(group_num):
             ball_list = []
@@ -262,4 +269,4 @@ if __name__ == "__main__":
     #print(daletou.getLatestExpertKillNumberData())
     #daletou.getDataByYear()
     #daletou.plotHistoryData()
-    print(daletou.getBallDataByRandom(5))
+    print(daletou.getBallDataByRandom(5, kill_red_ball_list = [1, 2, 3, 4]))
