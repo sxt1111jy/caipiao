@@ -14,6 +14,7 @@ import json
 import numpy as np
 import datetime
 import lxml
+import matplotlib.pyplot as plt
 from collections import OrderedDict
 
 class daletou():
@@ -32,9 +33,13 @@ class daletou():
         self.all_cai_piao_detailed_data = OrderedDict() #爬取到的所有彩票数据，包括期数、中奖号码、奖金、开奖时间等详细信息
         self.all_cai_piao_ball_list = [] #爬取到的所有彩票开奖号码数据
         self.current_issue = self.getCurrentPeriod() if not current_issue else current_issue
+        self.history_data_plot_fig_save_path = os.path.join(os.getcwd(), "data", "大乐透历史数据画图")  # 存储历史数据图片
         # 创建data子目录，用于保存数据
         if not os.path.exists(os.path.join(os.getcwd(), "data")):
             os.mkdir(os.path.join(os.getcwd(), "data"))
+        if not os.path.exists(self.history_data_plot_fig_save_path):
+            os.mkdir(self.history_data_plot_fig_save_path)
+
         # 获取当前日期
         now_time = datetime.datetime.now().strftime('%Y-%m-%d')
         self.file_save_dir = os.path.join(os.getcwd(), "data", now_time)
@@ -209,9 +214,52 @@ class daletou():
                 self.one_year_data_for_given_ball[index][current_year].append(ball)
                 self.all_years_data_for_given_ball[index].append(ball)
 
+    #画历史数据
+    def plotHistoryData(self, lenght = 500):
+        if not hasattr(daletou, "one_year_data_for_given_ball") and not hasattr(daletou, "all_years_data_for_given_ball"):
+            self.getDataByYear()
+        plt.figure(figsize=(30, 15))
+        history_data_save_path_list = [os.path.join(self.history_data_plot_fig_save_path, "球{}的数据".format(i)) for i in range(7)]
+        for history_data_save_path in history_data_save_path_list:
+            if not os.path.exists(history_data_save_path):
+                print("创建文件夹{}".format(history_data_save_path))
+                os.mkdir(history_data_save_path)
+        print("开始根据每个球所有年份的数据，画图进行中... ...")
+        for ball, value in self.all_years_data_for_given_ball.items():
+            size = len(value) // lenght
+            for i in range(size):
+                plt.plot(value[lenght*i: lenght*(i+1)])
+                plt.savefig(os.path.join(history_data_save_path_list[ball], "球{}的第{}-{}个数据图".format(ball ,lenght *(i), lenght * (i + 1))))
+                plt.clf()
+        print("开始根据每年的数据，画图进行中... ...")
+        for ball, year_data_dict in self.one_year_data_for_given_ball.items():
+            for year, given_ball_one_year_data in year_data_dict.items():
+                plt.plot(given_ball_one_year_data)
+                plt.savefig(os.path.join(history_data_save_path_list[ball], "球{}-在{}年的数据图".format(ball,  year)))
+                plt.clf()
+
+    def getBallDataByRandom(self, group_num):
+        '''
+        根据random.randint函数产生随机数据
+        :param group_num: 组数（注数），要获取多少注给定颜色的小球数据
+        :return: 一定注数的小球数据
+        '''
+        red_ball_data = range(1, 36, 1) #大乐透红球取值[1,35]
+        blue_ball_data = range(1, 13, 1) #大乐透篮球取值[1,12]
+        ball_data_list = []
+        for i in range(group_num):
+            ball_list = []
+            ball_list.extend(sorted(np.random.choice(red_ball_data, 5, replace = False)))
+            ball_list.extend(sorted(np.random.choice(blue_ball_data, 2, replace = False)))
+            ball_data_list.append(ball_list)
+        return ball_data_list
+
+
 if __name__ == "__main__":
     daletou = daletou()
     daletou.getAllData()
-    #daletou.getAllDataFromExcelFile()
+    daletou.getAllDataFromExcelFile()
     #print(daletou.getLatestExpertKillNumberData())
-    daletou.getDataByYear()
+    #daletou.getDataByYear()
+    #daletou.plotHistoryData()
+    print(daletou.getBallDataByRandom(5))
