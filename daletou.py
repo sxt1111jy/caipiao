@@ -198,8 +198,8 @@ class daletou():
         if len(self.all_cai_piao_ball_list) == 0:#彩票数据列表为空，首先需要获取数据
             self.getAllDataFromExcelFile()
         self.all_cai_piao_data_dict_by_year = OrderedDict()#记录每一年所有的彩票数据
-        self.one_year_data_for_given_ball = OrderedDict()#记录每个球每一年的数据，一年的数据为1个list
-        self.all_years_data_for_given_ball = OrderedDict()#记录每个球所有历史数据，一个球的所有数据为一个list
+        self.one_year_data_for_given_ball = OrderedDict()#记录每个球每一年的数据，一年的数据为1个list(数据结构为：{球X:{年份1：[], 年份2：[]}, 球Y:{年份1：[], 年份2：[]}})
+        self.all_years_data_for_given_ball = OrderedDict()#记录每个球所有历史数据，一个球的所有数据为一个list(一注彩票7个球，这里说的每个球是球1-球7的历史数据）{球1：[]，球2：[]}
         for i in range(7):
             self.one_year_data_for_given_ball[i] = OrderedDict()
             self.all_years_data_for_given_ball[i] = []
@@ -248,7 +248,6 @@ class daletou():
         blue_ball_data = list(range(1, 13, 1)) #大乐透篮球取值[1,12]
         if len(kill_red_ball_list) > 0:
             for ball_i in kill_red_ball_list:
-            for ball_i in kill_red_ball_list:
                 red_ball_data.remove(ball_i)
         if len(kill_blue_ball_list) > 0:
             for ball_i in kill_blue_ball_list:
@@ -261,6 +260,24 @@ class daletou():
             ball_data_list.append(ball_list)
         return ball_data_list
 
+    #获取彩票数字频率
+    def getDigitalFrequency(self, data_len = None):
+        '''
+        :param data_len: 数据长度，意为获取最近多少期中彩票数据中的数字频率，默认所有期数
+        :return: 红球、篮球数字频率
+        '''
+        if len(self.all_cai_piao_ball_list) == 0:#彩票数据列表为空，首先需要获取数据
+            self.getAllDataFromExcelFile()
+        if not data_len:
+            data_len = len(self.all_cai_piao_ball_list)
+        self.red_ball_digital_fraquency = np.zeros((33,), dtype = np.float)
+        self.blue_ball_digital_fraquency = np.zeros((16,), dtype = np.float)
+        for one_cai_piao in self.all_cai_piao_ball_list[-data_len:]:
+            for i in one_cai_piao[1:-1]:
+                self.red_ball_digital_fraquency[i - 1] += 1
+            self.blue_ball_digital_fraquency[one_cai_piao[-1] - 1] += 1
+        self.red_ball_digital_fraquency /= data_len
+        self.blue_ball_digital_fraquency /= data_len
 
 if __name__ == "__main__":
     daletou = daletou()
@@ -269,4 +286,5 @@ if __name__ == "__main__":
     #print(daletou.getLatestExpertKillNumberData())
     #daletou.getDataByYear()
     #daletou.plotHistoryData()
-    print(daletou.getBallDataByRandom(5, kill_red_ball_list = [1, 2, 3, 4]))
+    #print(daletou.getBallDataByRandom(5, kill_red_ball_list = [1, 2, 3, 4]))
+    daletou.getDigitalFrequency()
