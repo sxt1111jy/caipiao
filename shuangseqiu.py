@@ -292,13 +292,46 @@ class shuangseqiu():
         self.red_ball_digital_fraquency /= data_len
         self.blue_ball_digital_fraquency /= data_len
 
+    #计算每一期数据的和值
+    def computeSum(self, data_len = None, all_balls = True):
+        '''
+        :param data_len: 数据长度，计算多少期彩票数字的当期彩票中奖数字之和，默认计算所有的
+        :param all_balls: 当该值为true时，意为计算7个球的数字之和，否则计算所有中奖红球的数字之和
+        :return:
+        '''
+        balls_number = 7 if all_balls else 6
+        if len(self.all_cai_piao_ball_list) == 0:#彩票数据列表为空，首先需要获取数据
+            self.getAllDataFromExcelFile()
+        if not data_len:
+            data_len = len(self.all_cai_piao_ball_list)
+        self.cai_piao_sum_of_numbers =  []
+        for i in self.all_cai_piao_ball_list:
+            self.cai_piao_sum_of_numbers.append(sum(i[1:(balls_number + 1)]))
+
+    def plotSum(self, lenght = 500):
+        save_path = os.path.join(self.history_data_plot_fig_save_path, "中奖数字之和趋势图") #图片保存路径
+        if not os.path.exists(save_path):
+            os.mkdir(save_path)
+        if not hasattr(shuangseqiu, "cai_piao_sum_of_numbers"):
+            self.computeSum()
+        size = len(self.cai_piao_sum_of_numbers) // lenght
+        plt.figure(figsize=(30, 15))
+        for i in range(size):
+            plt.plot(self.cai_piao_sum_of_numbers[lenght * i: lenght * (i + 1)])
+            plt.savefig(os.path.join(save_path,"中奖数字之和趋势图的第{}-{}个数据图".format(lenght * (i), lenght * (i + 1))))
+            plt.clf()
+        plt.plot(self.cai_piao_sum_of_numbers[lenght * size: len(self.cai_piao_sum_of_numbers)])
+        plt.savefig(os.path.join(save_path, "中奖数字之和趋势图的第{}-{}个数据图".format(lenght * size, len(self.cai_piao_sum_of_numbers))))
+        plt.clf()
+
 if __name__ == "__main__":
     shuangseqiu = shuangseqiu()
-    shuangseqiu.getAllData()
-    shuangseqiu.getAllDataFromExcelFile()
+    # shuangseqiu.getAllData()
+    # shuangseqiu.getAllDataFromExcelFile()
     # print(shuangseqiu.getLatestExpertKillNumberData())
     # print(shuangseqiu.getMediaForecastsData())
     # shuangseqiu.getDataByYear()
     # shuangseqiu.plotHistoryData()
     # print(shuangseqiu.getBallDataByRandom(5, kill_red_ball_list = [1, 2, 3, 4]))
-    shuangseqiu.getDigitalFrequency()
+    # shuangseqiu.getDigitalFrequency()
+    shuangseqiu.plotSum()
